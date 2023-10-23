@@ -1,6 +1,6 @@
 /*
   
-  Parte 1: Contador de 0 a 99 con Display 7 Segmentos y Multiplexación  
+  Parte 1: Contador de 0 a 99 con Display 7 Segmentos y MultiplexaciÃ³n  
   
   Este codigo controla dos displays de 7 segmentos y tres botones para aumentar,
   disminuir y poner a cero contadores de unidades y decenas. Utiliza la tecnica
@@ -33,14 +33,14 @@ int estadoBotonAumentar = 0;
 int estadoBotonDisminuir = 0;
 int estadoBotonCero = 0;
 
-//Delay corto para facilitar la multiplexación
+//Delay corto para facilitar la multiplexaciÃ³n
 int tiempoDelay = 10;
 
 //Bandera para debouncing. Evitar falsos positivos al apretar los botones. 
 bool botonYaApretado = false;
 
 
-// Configuración inicial
+// ConfiguraciÃ³n inicial
 void setup()
 {
   // Configurar pines como entrada o salida
@@ -193,20 +193,19 @@ void mostrarNumero(int numero, int display)
 
 
 
-void loop()
+ void loop()
   /*
   Loop principal del programa.
 
-  Esta función se ejecuta continuamente y se encarga de manejar el contador de unidades
-  y decenas, así como de actualizar la visualización en los displays de 7 segmentos. También
+  Esta funciÃ³n se ejecuta continuamente y se encarga de manejar el contador de unidades
+  y decenas, asÃ­ como de actualizar la visualizaciÃ³n en los displays de 7 segmentos. TambiÃ©n
   detecta las interacciones con los botones de aumentar, disminuir y poner a cero.
 
-  Nota: Esta función utiliza la técnica de "debouncing" para evitar falsos positivos al
+  Nota: Esta funciÃ³n utiliza bandera de "debouncing" para evitar falsos positivos al
   presionar los botones.
 
   Parametros:
     Ninguno.
-
   Retorna:
     Ninguno.
 */
@@ -220,63 +219,53 @@ void loop()
   mostrarNumero(contadorUnidades, unidades);
   mostrarNumero(contadorDecenas, decenas);
 
-  // Comprobar si se ha presionado uno de los botones y evitar rebotes
+  // Comprobar si se ha presionado uno de los botones para evitar rebotes
   if (estadoBotonAumentar == HIGH && estadoBotonDisminuir == HIGH && estadoBotonCero == HIGH && botonYaApretado == true)
   {
-    // Reiniciar la bandera de botón presionado
-    botonYaApretado = false;
-    return;  // No realizar más acciones hasta que se suelten los botones
+    botonYaApretado = false;  // Reiniciar la bandera de boton presionado
+    return;  
   }
   else if (estadoBotonAumentar == 0 && botonYaApretado == false)
   {
-    // Marcar el botón como presionado para evitar múltiples incrementos
-    botonYaApretado = true;
-
-    // Incrementar el contador de unidades
-    contadorUnidades++;
-
+    
+    botonYaApretado = true; // Marcar el botÃ³n como presionado para evitar multiples incrementos
+    contadorUnidades++; // Incrementar el contador de unidades
+    
     if (contadorUnidades > 9)
     {
       contadorUnidades = 0;
-
-      // Cuando las unidades llegan a 0, incrementar el contador de decenas
-      contadorDecenas++;
+      contadorDecenas++;// Cuando las unidades llegan a 0, incrementar el contador de decenas
       mostrarNumero(contadorDecenas, decenas);
-
       if (contadorDecenas > 9)
       {
         contadorDecenas = 0;
       }
     }
-  }
-  else if (estadoBotonDisminuir == 0 && botonYaApretado == false)
+    
+  }else if (estadoBotonDisminuir == 0 && botonYaApretado == false)
   {
-    // Marcar el botón como presionado para evitar múltiples decrementos
+    // Marcar el boton como presionado para evitar mÃºltiples decrementos
     botonYaApretado = true;
 
     // Decrementar el contador de unidades
     contadorUnidades--;
 
-    if (contadorUnidades < 0)
+    if (contadorUnidades < 0) 
     {
       contadorUnidades = 9;
-
-      // Cuando las unidades llegan a 9, decrementar el contador de decenas
-      contadorDecenas--;
-
+      contadorDecenas--; // Cuando las unidades llegan a 9, decrementar el contador de decenas
       if (contadorDecenas < 0)
       {
         contadorDecenas = 9;
       }
     }
-  }
-  else if (estadoBotonCero == 0 && botonYaApretado == false)
+  }else if (estadoBotonCero == 0 && botonYaApretado == false)
   {
-    // Marcar el botón como presionado para evitar múltiples reinicios
+    // Marcar el botÃ³n como presionado para evitar multiples reinicios
     botonYaApretado = true;
-
     // Reiniciar ambos contadores a cero
     contadorUnidades = 0;
     contadorDecenas = 0;
   }
 }
+
