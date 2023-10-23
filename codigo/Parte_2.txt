@@ -1,0 +1,505 @@
+#define A 10
+#define B 12
+#define C 5
+#define D 6
+#define E 7
+#define F 9
+#define G 8
+#define DISPLAY_DECENAS A4
+#define DISPLAY_UNIDADES A5
+#define BOTON_AUMENTAR 3
+#define BOTON_DISMINUIR 2
+#define SENSOR_TEMP A3 
+#define PIN_MOTOR 11
+#define SWITCH_MODO A1
+#define PIN_PIEZO A2
+#define SWITCH_PIEZO A0
+
+//Contadores
+int numeroActual = 0;	 
+int contadorUnidades = 0;	
+int contadorDecenas = 0;
+
+int tiempoDelay = 10; // Delay corto para permitir multiplexacion
+
+bool estadoSwitchPiezo = false; // Swtich de piezo
+
+bool estadoSwitchModo = false; // Switch de modos
+
+enum modo { CONTADOR, PRIMOS }; //config de modos
+modo modoActual = CONTADOR;
+
+
+unsigned long limiteInactividad = 3000; // Limite de inactividad en ms
+unsigned long ultimaInteraccion = 0;  // Tiempo desde inicio ejecucion hasta la ultima interaccion con botones y switches
+
+// Variables para botones  
+bool botonAumentarPresionado = false;    
+bool botonDisminuirPresionado = false; 
+
+
+
+void botonAumentarHandler() {
+  /*
+  Maneja de interrupcion para el boton de aumentar.
+  
+  Es llamada cuando se detecta una interrupcion en el boton.
+  Usa uan bandera para indicar que el boton fue presionado y actualiza el tiempo de la ultima interacción.
+
+  Params
+  -No tiene
+  Returns
+  -No tiene
+ */
+  botonAumentarPresionado = true; 
+  ultimaInteraccion = millis(); 
+}
+
+
+void botonDisminuirHandler() {
+  /*
+  Maneja de interrupcion para el boton de disminuir.
+  
+  Es llamada cuando se detecta una interrupcion en el boton.
+  Usa uan bandera para indicar que el boton fue presionado y actualiza el tiempo de la ultima interacción.
+
+  Params
+  -No tiene
+  Returns
+  -No tiene
+ */
+  botonDisminuirPresionado = true;
+  ultimaInteraccion = millis();
+}
+
+
+void setup() {
+  /*
+  Configuración inicial del programa.
+
+  Se encarga de configurar los pines y las interrupciones necesarias para el funcionamiento del programa.
+
+  Params
+  - No recibee
+  Returns:
+  - No tiene
+*/
+  // Configura los segmentos del display como salidas
+  pinMode(A, OUTPUT);
+  pinMode(B, OUTPUT);
+  pinMode(C, OUTPUT);
+  pinMode(D, OUTPUT);
+  pinMode(E, OUTPUT);
+  pinMode(F, OUTPUT);
+  pinMode(G, OUTPUT);
+  
+  // Configura los displays como salidas
+  pinMode(DISPLAY_UNIDADES, OUTPUT);
+  pinMode(DISPLAY_DECENAS, OUTPUT);
+  
+  // Configura el motor y piezo como salida
+  pinMode(PIN_MOTOR, OUTPUT);
+  pinMode(PIN_PIEZO, OUTPUT);
+  
+  // Configura el interruptor de modo y del piezo como entrada con resistencia pull-up
+  pinMode(SWITCH_PIEZO, INPUT_PULLUP);
+  pinMode(SWITCH_MODO, INPUT_PULLUP);
+
+  // Configura los botones de aumentar y disminuir como entradas con resistencia pull-up
+  pinMode(BOTON_AUMENTAR, INPUT_PULLUP);
+  pinMode(BOTON_DISMINUIR, INPUT_PULLUP);
+
+  // Configura el pin del sensor de temperatura como entrada
+  pinMode(SENSOR_TEMP, INPUT);
+
+  /* Adjunta las rutinas de interrupción a los botones.
+     Cuando ocurre un cambio de HIGH a LOW (FALLING) en estos pines, se activa las funciones Handler,
+     cambiando el estado de botonAumentarPresionado o botonDisminuirPresionado correspondientemente,
+     lo que permite detener las animaciones de inactividad facilmente.
+  */
+  attachInterrupt(digitalPinToInterrupt(BOTON_AUMENTAR), botonAumentarHandler, FALLING);
+  attachInterrupt(digitalPinToInterrupt(BOTON_DISMINUIR), botonDisminuirHandler, FALLING);
+  
+  Serial.begin(9600);
+}
+
+
+void mostrarSegmento(int segmento, int display) {
+  /*
+  Enciende un segmento en un display seleccionado.
+
+  Se utiliza para encender un segmento especifico en un display especifico.
+
+  Params
+  - segmento: El pin correspondiente al segmento que se desea encender.
+  - display: El display en el que se desea mostrar el segmento (DISPLAY_DECENAS o DISPLAY_UNIDADES).
+
+  Return
+  - No tiene.
+  */
+  if (display == DISPLAY_DECENAS) {
+    // Activa el display decenas y desactiva unidades.
+    digitalWrite(DISPLAY_DECENAS, LOW);
+    digitalWrite(DISPLAY_UNIDADES, HIGH);
+  } else if (display == DISPLAY_UNIDADES) {
+    // Activa el display unidades y desactiva decenas.
+    digitalWrite(DISPLAY_DECENAS, HIGH);
+    digitalWrite(DISPLAY_UNIDADES, LOW);
+  }
+
+  // Enciende el segmento especificado
+  digitalWrite(segmento, HIGH);
+}
+
+
+void mostrarPatron(char secuencia[], char display, int numRepeticiones, int tiempoRetraso, int inicio, int fin) {
+  /*
+  Muestra una secuencia de segmentos en un display específico.
+
+  Esta funcion permite mostrar una secuencia de segmentos en un display seleccionado durante un número específico de repeticiones.
+
+  Params
+  - secuencia: Array de caracteres que representa la secuencia de segmentos a mostrar.
+  - display: El display en el que se quiere a mostrar la secuencia (DISPLAY_DECENAS o DISPLAY_UNIDADES).
+  - numRepeticiones: Las veces que se repetira la secuencia.
+  - tiempoRetraso: El tiempo en milisegundos de retraso entre cada segmento de la secuencia.
+  - inicio: La posicion en la secuencia en la que se quiere iniciar el recorrido .
+  - fin: La posicion en la secuencia en la que se quiere terminar el recorreido.
+
+  Return
+  - No tiene
+*/
+  for (int repetir = 0; repetir < numRepeticiones; repetir++) {
+    for (int i = inicio; i < fin; i++) {
+      apagarSegmentos();  // Apaga todos los segmentos
+      mostrarSegmento(secuencia[i], display);  // Muestra el segmento actual
+      delay(tiempoRetraso);  // Retraso antes de mostrar el siguiente segmento
+    }
+  }
+}
+
+  
+void mostrarAnimCirculo() {
+    /*
+    Muestra una animacion que forma un patron circular utilizando ambos displays.
+    */
+    //Utiliza dos arrays de chars para definir la secuencia de segmentos de cada disaply.
+    char decenasSequence[] = {D, E, F, A};
+    char unidadesSequence[] = {A, B, C, D};
+	//Llamadas a la funcion mostrarPatron
+    mostrarPatron(decenasSequence, DISPLAY_DECENAS, 1, 150, 0, 4);
+    mostrarPatron(unidadesSequence, DISPLAY_UNIDADES, 1, 150, 0, 4);
+}
+
+void mostrarAnimCuadrados() {
+    /*
+     Muestra una animacion que crea un patron de un cuadrado moviendose de display a display.
+    */
+    //Utiliza un array de char para definir el patron.
+    char secuencia[] = {B, A, F, G, G, E, D, C};
+	//Utiliza mostrarPatron para mostrar en el orden y display correcto.
+    mostrarPatron(secuencia, DISPLAY_DECENAS, 5, 50, 0, 4);
+    mostrarPatron(secuencia, DISPLAY_DECENAS, 5, 50, 4, 8);
+    mostrarPatron(secuencia, DISPLAY_UNIDADES, 5, 50, 0, 4);
+    mostrarPatron(secuencia, DISPLAY_UNIDADES, 5, 50, 4, 8);
+}
+
+void mostrarAnimSerpiente() {
+    /*
+    Muestra una animacion de efecto "serpiente" moviendose entre los displays.
+    */
+  
+    //Utiliza dos arrays para definir el patron de segmentos de cada display.
+    char decenasSequence[] = {D, E, G, A, F, G};
+    char unidadesSequence[] = {G, B, A, G, C, D};
+  	//Utiliza mostrarPatron para mostar en el orden y display correcto.
+    mostrarPatron(decenasSequence, DISPLAY_DECENAS, 1, 150, 0, 3);
+    mostrarPatron(unidadesSequence, DISPLAY_UNIDADES, 1, 150, 0, 3);
+    mostrarPatron(decenasSequence, DISPLAY_DECENAS, 1, 150, 3, 6);
+    mostrarPatron(unidadesSequence, DISPLAY_UNIDADES, 1, 150, 3, 6);
+}
+
+  
+bool esPrimo(int num) {
+  /*
+  Comprueba si un numero es primo.
+  
+  Params
+  - num: El numero entero que se desea verificar si es primo.
+  
+  Returns
+  - true: Si el numero es primo.
+  - false: Si el numero no es primo 
+*/
+  // 0 y 1 no son primos
+  if (num <= 1) return false;
+  // 2 y 3 son primos
+  if (num <= 3) return true;
+  // Comprueba si el numero tiene divisores
+  for (int i = 2; i * i <= num; i++) {
+    if (num % i == 0) {
+      return false; // Si encuetra divisor, no es primo
+    }
+  }
+  return true; // Es primo.
+}
+  
+
+void apagarSegmentos() {
+  /*
+  Apaga los segmentos.
+  Utiliza un array de elementos (segmentos de display) y 
+  los recorre usando un for loop hasta apagalos todos.
+  */
+  int pins[] = {A, B, C, D, E, F, G};
+  for (int i = 0; i < 7; i++) {
+    digitalWrite(pins[i], LOW);
+  }
+}
+
+
+void mostrarNumero(int numero, int display) {
+  /*
+  Muestra el numero especificado en un display de 7 segmentos.
+  
+  param numero - El numero a mostrar (0 a 9).
+  param display - El display en el que se mostrara el número (DISPLAY_DECENAS o DISPLAY_UNIDADES).
+  */
+
+  // Apaga todos los segmentos del display.
+  apagarSegmentos();
+  
+  // Configura el display que se utilizara.
+  if (display == DISPLAY_DECENAS) {
+    digitalWrite(DISPLAY_DECENAS, LOW);
+    digitalWrite(DISPLAY_UNIDADES, HIGH);
+  } else if (display == DISPLAY_UNIDADES) {
+    digitalWrite(DISPLAY_DECENAS, HIGH);
+    digitalWrite(DISPLAY_UNIDADES, LOW);
+  }
+
+  // Agrega un pequeño delay necesario para la multiplexacion.
+  delay(tiempoDelay);
+
+  // Muestra el numero en el display de 7 segmentos.
+  switch (numero) {
+    case 0:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 1:
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      break;
+    case 2:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 3:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 4:
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 5:
+      digitalWrite(A, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 6:
+      digitalWrite(A, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(E, HIGH);
+      break;
+    case 7:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 8:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 9:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    default:
+      apagarSegmentos();
+      break;
+  }
+}
+
+
+
+
+
+void mostrarSiguiente(int modo, int &numeroActual) {
+  /*
+  Incrementa el numero actual y lo muestra en el display.
+  Dependiendo del modo, aumenta de uno en uno o solo numeros primos.
+  Realiza una respuesta sonora en un buzzer piezoelectrico.
+  Regula la velocidad de un motor cc en correspondencia.
+
+  Params
+  - modo (int): El modo de operacion (CONTADOR o PRIMOS).
+  - numeroActual (int): El numero actual que se incrementara y mostrará en el display. Se pasa por referencia. 
+  
+  Return
+  - No tiene.
+*/
+  
+do {
+    // Incrementa el numero actual.
+    numeroActual++;
+
+    // Reinicia el numero actual si es menor que 0.
+    if (numeroActual < 0) {
+      numeroActual = 99;
+    }
+
+    // Divide el numero en unidades y decenas, para correcta multiplexacion
+    contadorUnidades = numeroActual % 10;
+    contadorDecenas = numeroActual / 10;
+
+  } while (modo == PRIMOS && !esPrimo(numeroActual));  // Continua hasta encontrar un numero primo.
+
+  // Muestra el número en los displays de unidades y decenas.
+  mostrarNumero(contadorUnidades, DISPLAY_UNIDADES);
+  mostrarNumero(contadorDecenas, DISPLAY_DECENAS);
+
+  // Activa el tono en el piezo si esta habilitado.
+  if (estadoSwitchPiezo) {
+    tone(PIN_PIEZO, 700, 15);
+    delay(15);
+    noTone(PIN_PIEZO);
+  }
+}
+
+
+
+void mostrarAnterior(int modo, int &numeroActual) {
+  /*
+  Decrementa el numero actual y lo muestra en el display.
+  Dependiendo del modo, decrementa de uno en uno o solo numeros primos.
+  Realiza una respuesta sonora en un buzzer piezoelectrico.
+  Regula la velocidad de un motor cc en correspondencia.
+
+  Params
+  - modo (int): El modo de operacion (CONTADOR o PRIMOS).
+  - numeroActual (int): El numero actual que se incrementara y mostrará en el display. Se pasa por referencia. 
+  
+  Return
+  - No tiene.
+  */
+  
+  do {
+    // Reduce el numero actual.
+    numeroActual--;
+
+    // Reinicia el numero actual si es menor que 0.
+    if (numeroActual < 0) {
+      numeroActual = 99;
+    }
+    
+    // Divide el numero en unidades y decenas, para correcta multiplexacion
+    contadorUnidades = numeroActual % 10;
+    contadorDecenas = numeroActual / 10;
+
+  } while (modo == PRIMOS && !esPrimo(numeroActual)); // Continua hasta encontrar un numero primo.
+
+  // Muestra el número en los displays de unidades y decenas.
+  mostrarNumero(contadorUnidades, DISPLAY_UNIDADES);
+  mostrarNumero(contadorDecenas, DISPLAY_DECENAS);
+
+  // Activa el tono en el piezo si esta habilitado.
+  if (estadoSwitchPiezo) {
+    tone(PIN_PIEZO, 200, 15);
+    delay(15);
+    noTone(PIN_PIEZO);
+  }
+}
+
+void loop() {
+  /*
+  El loop principal del programa.
+  
+  Se realiza el seguimiento de la temperatura, se controla el motor,
+  se manejan los interruptores de modo, se actualiza el estado del display, y se verifican
+  los botones de aumento y disminucion. Tambien se activan animaciones si no hay interacciones.
+  
+  */
+  int datosSensorTemp = analogRead(SENSOR_TEMP);  // Lee la temperatura desde el sensor.
+  float temperatura = map(datosSensorTemp, 20, 358, -40, 125);  // Mapea el valor del sensor al rango de -40 a 125 grados.
+
+  // Lee el estado de los interruptores.
+  estadoSwitchPiezo = digitalRead(SWITCH_PIEZO);
+  estadoSwitchModo = digitalRead(SWITCH_MODO);
+
+  // Mapea el valor del numero actual al rango del motor.
+  int motorSpeed = map(numeroActual, 0, 99, 0, 255);
+  analogWrite(PIN_MOTOR, motorSpeed);
+
+  // Configura el modo actual basado en el interruptor de modo.
+  if (estadoSwitchModo == HIGH) {
+    modoActual = CONTADOR;
+  } else {
+    modoActual = PRIMOS;
+  }
+
+  // Activa animaciones si no hay interaccion durante un tiempo especifico.
+  if (millis() - ultimaInteraccion >= limiteInactividad) {
+    if (temperatura >= -40 && temperatura < 20) {
+      mostrarAnimCirculo();
+    } else if (temperatura >= 20 && temperatura < 75) {
+      mostrarAnimSerpiente();
+    } else if (temperatura >= 75 && temperatura <= 150) {
+      mostrarAnimCuadrados();
+    }
+  }
+
+  // Verifica si el boton de aumentar fue precionado.
+  if (botonAumentarPresionado) {
+    mostrarSiguiente(modoActual, numeroActual);
+    botonAumentarPresionado = false;
+  }
+
+  // Verifica si el boton de disminuir fue precionado.
+  if (botonDisminuirPresionado) {
+    mostrarAnterior(modoActual, numeroActual);
+    botonDisminuirPresionado = false;
+  }
+
+  // Muestra los numeros en los displays.
+  mostrarNumero(contadorUnidades, DISPLAY_UNIDADES);
+  mostrarNumero(contadorDecenas, DISPLAY_DECENAS);
+}

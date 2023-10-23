@@ -1,0 +1,282 @@
+/*
+  
+  Parte 1: Contador de 0 a 99 con Display 7 Segmentos y Multiplexación  
+  
+  Este codigo controla dos displays de 7 segmentos y tres botones para aumentar,
+  disminuir y poner a cero contadores de unidades y decenas. Utiliza la tecnica
+  de multiplexacion para alternar entre mostrar el valor de las unidades y decenas en
+  los dos displays.
+  
+*/
+
+
+// Definiciones de pines para los segmentos y displays
+#define A 10
+#define B 11
+#define C 5
+#define D 6
+#define E 7
+#define F 9
+#define G 8
+#define decenas A4
+#define unidades A5
+
+// Definiciones de pines para los botones
+#define BOTON_AUMENTAR 2
+#define BOTON_DISMINUIR 3
+#define BOTON_CERO 4
+
+// Variables globales para el contador y el estado de los botones
+int contadorUnidades = 0;
+int contadorDecenas = 0;
+int estadoBotonAumentar = 0;
+int estadoBotonDisminuir = 0;
+int estadoBotonCero = 0;
+
+//Delay corto para facilitar la multiplexación
+int tiempoDelay = 10;
+
+//Bandera para debouncing. Evitar falsos positivos al apretar los botones. 
+bool botonYaApretado = false;
+
+
+// Configuración inicial
+void setup()
+{
+  // Configurar pines como entrada o salida
+  pinMode(A, OUTPUT);
+  pinMode(B, OUTPUT);
+  pinMode(C, OUTPUT);
+  pinMode(D, OUTPUT);
+  pinMode(E, OUTPUT);
+  pinMode(F, OUTPUT);
+  pinMode(G, OUTPUT);
+  pinMode(unidades, OUTPUT);
+  pinMode(decenas, OUTPUT);
+  pinMode(BOTON_AUMENTAR,INPUT_PULLUP);
+  pinMode(BOTON_DISMINUIR,INPUT_PULLUP);
+  pinMode(BOTON_CERO,INPUT_PULLUP);
+}
+
+ 
+
+void apagar()
+{
+ 
+  /*
+  Apaga todos los segmentos de un display.
+  */
+  digitalWrite(A, LOW);
+  digitalWrite(B, LOW);
+  digitalWrite(C, LOW);
+  digitalWrite(D, LOW);
+  digitalWrite(E, LOW);
+  digitalWrite(F, LOW);
+  digitalWrite(G, LOW);
+}
+
+
+void mostrarNumero(int numero, int display)
+{
+  /*
+  Muestra un numero en un display de 7 segmentos.
+
+  Esta funcion permite mostrar numeros del 0 al 9 en dos displays diferentes (unidades y decenas).
+  Controla la multiplexacion entre los displays para alternar entre mostrar el valor de
+  las unidades y las decenas.
+
+  Param
+  - numero - El numero (0-9) que se mostrara en el display.
+  - display - El display (unidades o decenas) en el que se mostrara el numero.
+
+  Retorn
+  - No tiene.
+ */
+  
+  // Apagar todos los segmentos para evitar segmentos residuales
+  apagar();
+
+  if (display == unidades)
+  {
+    // Cambiar a mostrar en el display de unidades
+    digitalWrite(unidades, LOW);
+    digitalWrite(decenas, HIGH);
+    delay(tiempoDelay);
+  }
+  else if (display == decenas)
+  {
+    // Cambiar a mostrar en el display de decenas
+    digitalWrite(decenas, LOW);
+    digitalWrite(unidades, HIGH);
+    delay(tiempoDelay);
+  }
+
+  // Mostrar el numero especificado en el display
+  switch (numero)
+  {
+    case 0:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 1:
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      break;
+    case 2:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 3:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 4:
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(G, HIGH);
+      break;
+    case 5:
+      digitalWrite(A, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 6:
+      digitalWrite(A, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(F, HIGH);
+      digitalWrite(E, HIGH);
+      break;
+    case 7:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 8:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(E, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    case 9:
+      digitalWrite(A, HIGH);
+      digitalWrite(B, HIGH);
+      digitalWrite(C, HIGH);
+      digitalWrite(D, HIGH);
+      digitalWrite(G, HIGH);
+      digitalWrite(F, HIGH);
+      break;
+    default:
+      apagar();
+      break;
+  }
+}
+
+
+
+
+
+void loop()
+  /*
+  Loop principal del programa.
+
+  Esta función se ejecuta continuamente y se encarga de manejar el contador de unidades
+  y decenas, así como de actualizar la visualización en los displays de 7 segmentos. También
+  detecta las interacciones con los botones de aumentar, disminuir y poner a cero.
+
+  Nota: Esta función utiliza la técnica de "debouncing" para evitar falsos positivos al
+  presionar los botones.
+
+  Parametros:
+    Ninguno.
+
+  Retorna:
+    Ninguno.
+*/
+{
+  // Leer el estado de los botones
+  estadoBotonAumentar = digitalRead(BOTON_AUMENTAR);
+  estadoBotonDisminuir = digitalRead(BOTON_DISMINUIR);
+  estadoBotonCero = digitalRead(BOTON_CERO);
+
+  // Mostrar los valores del contador en los displays
+  mostrarNumero(contadorUnidades, unidades);
+  mostrarNumero(contadorDecenas, decenas);
+
+  // Comprobar si se ha presionado uno de los botones y evitar rebotes
+  if (estadoBotonAumentar == HIGH && estadoBotonDisminuir == HIGH && estadoBotonCero == HIGH && botonYaApretado == true)
+  {
+    // Reiniciar la bandera de botón presionado
+    botonYaApretado = false;
+    return;  // No realizar más acciones hasta que se suelten los botones
+  }
+  else if (estadoBotonAumentar == 0 && botonYaApretado == false)
+  {
+    // Marcar el botón como presionado para evitar múltiples incrementos
+    botonYaApretado = true;
+
+    // Incrementar el contador de unidades
+    contadorUnidades++;
+
+    if (contadorUnidades > 9)
+    {
+      contadorUnidades = 0;
+
+      // Cuando las unidades llegan a 0, incrementar el contador de decenas
+      contadorDecenas++;
+      mostrarNumero(contadorDecenas, decenas);
+
+      if (contadorDecenas > 9)
+      {
+        contadorDecenas = 0;
+      }
+    }
+  }
+  else if (estadoBotonDisminuir == 0 && botonYaApretado == false)
+  {
+    // Marcar el botón como presionado para evitar múltiples decrementos
+    botonYaApretado = true;
+
+    // Decrementar el contador de unidades
+    contadorUnidades--;
+
+    if (contadorUnidades < 0)
+    {
+      contadorUnidades = 9;
+
+      // Cuando las unidades llegan a 9, decrementar el contador de decenas
+      contadorDecenas--;
+
+      if (contadorDecenas < 0)
+      {
+        contadorDecenas = 9;
+      }
+    }
+  }
+  else if (estadoBotonCero == 0 && botonYaApretado == false)
+  {
+    // Marcar el botón como presionado para evitar múltiples reinicios
+    botonYaApretado = true;
+
+    // Reiniciar ambos contadores a cero
+    contadorUnidades = 0;
+    contadorDecenas = 0;
+  }
+}
