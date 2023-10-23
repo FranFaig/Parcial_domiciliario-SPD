@@ -14,7 +14,7 @@ El proyecto incluye tanto el diseño y montaje de componentes electrónicos como
 ## Parte 1: Contador Displays de 7 Segmentos y Multiplexación
 En esta primera parte del proyecto, diseñamos un contador de 0 a 99 utilizando dos displays de 7 segmentos y tres botones para controlar la cuenta e implementado técnica de multiplexación. El contador comienza en 0 y es capaz de aumentar ,disminuir o regresar a 0 su valor usando los botones.
 
-![Diagrama del circuito - Parte 1]()
+![Diagrama del circuito - Parte 1](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/imagenes/Parte_1.PNG)
 
 - Parte 1 en Tinkercad [aquí](https://www.tinkercad.com/things/8JuzkYb3aVi).
 
