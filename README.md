@@ -14,7 +14,7 @@ El proyecto incluye tanto el diseño y montaje de componentes electrónicos como
 ## Parte 1: Contador Displays de 7 Segmentos y Multiplexación
 En esta primera parte del proyecto, diseñamos un contador de 0 a 99 utilizando dos displays de 7 segmentos y tres botones para controlar la cuenta y implementando técnica de multiplexación. El contador comienza en 0 y es capaz de aumentar ,disminuir o regresar a 0 su valor usando los botones.
 - Tinkercad: [link](https://www.tinkercad.com/things/8JuzkYb3aVi).
-- Diagrama:![Link](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/diagramas/Parte%201.pdf).
+- Diagrama: [Link](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/diagramas/Parte%201.pdf).
 ![](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/imagenes/Parte_1.PNG)
 
 
@@ -88,14 +88,14 @@ void mostrarNumero(int numero, int display)
 En esta etapa, sustituimos uno de los botones por un switch deslizante de dos posiciones. 
 Dependiendo la posiciondel interruptor, los display mostrarán el contador o los números primos en el rango de 0 a 99.
 Ademas de eso, se agregaron una serie de componentes que amplian la funcionalidad:
-  ### - Motor cc
+  - Motor cc
     Se agrego un motor cc que aumenta o disminuye la velocidad en referencia al contador en ambos modos. Aplicacion de la funcion map().
-  ### - Sensor de temperatura
+  - Sensor de temperatura
     Interactua con bloques de codigo ligados a la inactividad. Si el programa detecta que no se toco ningun boton en un 
     timepo determinado, muestra una de tres animaciones en display que varian dependiendo de la temperatura.
-  ### - Buzzer piezoelectrico (componente extra)
+  - Buzzer piezoelectrico (componente extra)
     Adicionalmente, se implemento un buzzer piezoelectrico y un switch para prenderlo y apagarlo. El piezo proporciona feedback sonoro al contador.
   
 - Tinkercad: [link](https://www.tinkercad.com/things/giu3DfixEy2?sharecode=JLBI8ewCcy1uKQdBmG3tAXeHytqIhF4u6QK3HnRkYMQ).
-- Diagrama:![Link](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/diagramas/Parte%202.pdf).
+- Diagrama: [Link](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/diagramas/Parte%202.pdf).
 ![](https://github.com/FranFaig/Parcial_domiciliario-SPD/blob/main/imagenes/Parte_2.PNG)
