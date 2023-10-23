@@ -1,3 +1,14 @@
+/*
+Modifica el proyecto de la Parte 2 de la siguiente manera:
+1. Considerando el último número de tu número de documento (DNI o documento de
+identidad), agrega un componente adicional que afecte el funcionamiento del proyecto.
+Describe en detalle qué hace este nuevo componente y cómo se integra en el proyecto.
+
+-Si tu número de documento termina en (0-3) deberás implementar a tu proyecto la
+fotoresistencia
+
+*/
+
 #define A 10
 #define B 12
 #define C 5

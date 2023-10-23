@@ -1,3 +1,19 @@
+\*
+Modifica el proyecto de la Parte 1 de la siguiente manera:
+1. Sustituye uno de los botones por un interruptor deslizante (switch) de dos posiciones.
+Dependiendo de la posición del interruptor, el display debe mostrar o bien el contador (como
+en la Parte 1) o los números primos en el rango de 0 a 99.
+
+2. Investiga un componente electrónico adicional que podría mejorar este proyecto.
+Proporciona una descripción detallada del componente, su función y cómo se podría
+integrar en el proyecto.
+
+Investigar en la semana y agregar uno de los siguientes componentes
+-Sensor de flexión
+-Sensor de fuerza
+-Sensor de temperatura
+*/
+
 #define A 10
 #define B 12
 #define C 5
