@@ -5,7 +5,7 @@
 - Francisco Faig 
 
 ## Descripción
-Este proyecto se enmarca en el curso "Sistemas de Procesamiento de Datos" de la Universidad Tecnológica Nacional (UTN) - Facultad Regional Avellaneda.
+Este proyecto se da en contexto del curso "Sistemas de Procesamiento de Datos" de la Universidad Tecnológica Nacional - Facultad Regional Avellaneda (UTN-FRA).
 
 El objetivo es crear un contador digital utilizando el microcontrolador Arduino UNO en la plataforma Tinkercad. A lo largo de tres etapas, se desarrollará un sistema que evoluciona desde un contador básico hasta una versión más compleja con funcionalidades extendidas. El proyecto incluye tanto el diseño y montaje de componentes electrónicos como el desarrollo del software necesario para alcanzar los objetivos de cada fase.
 
