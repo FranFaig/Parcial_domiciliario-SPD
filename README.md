@@ -21,6 +21,7 @@ En esta primera parte del proyecto, diseñamos un contador de 0 a 99 utilizando 
 ## Funciónes Principales
 
 ### 
+```c
  void loop()
   /*
   Loop principal del programa.
@@ -96,8 +97,9 @@ En esta primera parte del proyecto, diseñamos un contador de 0 a 99 utilizando 
     contadorDecenas = 0;
   }
 }
-
+```
 ### mostrarNumero 
+```c
 void mostrarNumero(int numero, int display)
 {
   /*
@@ -158,3 +160,5 @@ void mostrarNumero(int numero, int display)
       break;
    }
 }
+
+```
